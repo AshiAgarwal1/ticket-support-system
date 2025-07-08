@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '/api'; // ✅ works on same domain
-
+const API_URL = 'http://localhost:5000/api';
 
 // Create axios instance
 const api = axios.create({
