@@ -1,29 +1,59 @@
 const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const router = express.Router();
 
-dotenv.config();
-const app = express();
+// Auto-create demo user on server start
+(async () => {
+  try {
+    const existing = await User.findOne({ username: 'admin' });
+    if (!existing) {
+      const newUser = new User({
+        username: 'admin',
+        email: 'admin@example.com',
+        password: 'password123',
+        name: 'Admin User',
+        role: 'admin'
+      });
+      await newUser.save();
+      console.log('✅ Demo admin user created');
+    } else {
+      console.log('ℹ️ Demo admin user already exists');
+    }
+  } catch (err) {
+    console.error('❌ Error creating demo user:', err.message);
+  }
+})();
 
-app.use(cors());
-app.use(express.json());
+// POST /api/users/login
+router.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-// ✅ Mount user routes (for login, register, etc.)
-app.use('/api/users', require('./routes/userRoutes')); // Make sure this file exists
+    const user = await User.findOne({ username });
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
-// ✅ Mount ticket routes (optional if used)
-app.use('/api/tickets', require('./routes/ticketRoutes'));
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d',
+    });
 
-const __dirname1 = path.resolve();
+    res.json({
+      message: 'Login successful!',
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      token,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
-// ✅ Serve Vite build
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname1, '/client/dist')));
-  app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname1, 'client', 'dist', 'index.html'))
-  );
-}
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = router;
