@@ -1,5 +1,5 @@
 const express = require('express');
-const Ticket = require('../models/Ticket');
+const Ticket = require('../models/Ticket.js');
 const auth = require('../middleware/auth');
 
 const router = express.Router();

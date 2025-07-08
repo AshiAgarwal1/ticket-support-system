@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api'; // ✅ works on same domain
+
 
 // Create axios instance
 const api = axios.create({
@@ -39,7 +40,8 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
+  login: (credentials) => api.post('/users/login', credentials),
+
   register: (userData) => api.post('/auth/register', userData),
   getCurrentUser: () => api.get('/auth/me'),
 };

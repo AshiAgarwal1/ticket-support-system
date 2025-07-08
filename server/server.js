@@ -1,4 +1,7 @@
 const express = require('express');
+const dotenv = require('dotenv');
+dotenv.config(); // Load .env before anything else
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
