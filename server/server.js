@@ -9,15 +9,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// API routes
-// app.use('/api/tickets', require('./routes/ticketRoutes'));
+// ✅ Mount user routes (for login, register, etc.)
+app.use('/api/users', require('./routes/userRoutes')); // Make sure this file exists
+
+// ✅ Mount ticket routes (optional if used)
+app.use('/api/tickets', require('./routes/ticketRoutes'));
 
 const __dirname1 = path.resolve();
 
-// Serve Vite build
+// ✅ Serve Vite build
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname1, '/client/dist')));
-
   app.get('*', (req, res) =>
     res.sendFile(path.resolve(__dirname1, 'client', 'dist', 'index.html'))
   );
